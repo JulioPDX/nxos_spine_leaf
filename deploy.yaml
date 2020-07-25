@@ -4,8 +4,8 @@
   gather_facts: false
   hosts: network
   roles:
-    # - base
+    - base
     - features
-    # - interfaces
-    # - ospf
-    # - pim
+    - interfaces
+    - ospf
+    - pim

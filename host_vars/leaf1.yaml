@@ -25,10 +25,3 @@ loopbacks:
     ip_address: 192.168.0.3/32
     description: loopback 0
     ospf_enabled: True
-
-nves:
-
-  nve1:
-    name: nve1
-    ip_address: 192.168.0.3/32
-    source_interface: loopback 0
