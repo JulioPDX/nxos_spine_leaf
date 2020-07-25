@@ -1,0 +1,6 @@
+- name: Ensure features for fabric
+  nxos_feature:
+    feature: "{{ item }}"
+    state: enabled
+  with_items: features
+  when: features is defined

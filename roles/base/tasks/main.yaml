@@ -1,0 +1,13 @@
+- name: configure hostname
+  nxos_config:
+    lines: hostname {{ hostname }}
+    save_when: modified
+  when: hostname is defined
+
+- name: configure motd banner
+  nxos_banner:
+    banner: motd
+    text: |
+      BGP EVPN VXLAN LAB
+      Thank you Packetflow.co.uk
+    state: present

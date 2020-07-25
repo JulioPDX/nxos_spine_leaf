@@ -1,0 +1,10 @@
+- name: Configure base level interface settings
+  nxos_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        description: "{{ item.value.description }}"
+        enabled: "{{ item.value.enabled }}"
+        mtu: "{{ item.value.mtu }}"
+        mode: "{{ item.value.mode }}"
+  with_dict: "{{ interfaces }}"
+  when: interfaces is defined

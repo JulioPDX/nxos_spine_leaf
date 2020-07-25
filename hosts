@@ -1,0 +1,23 @@
+locahost
+[network]
+spine1 ansible_host=192.168.10.83
+spine2 ansible_host=192.168.10.84
+leaf1 ansible_host=192.168.10.90
+leaf2 ansible_host=192.168.10.86
+leaf3 ansible_host=192.168.10.87
+leaf4 ansible_host=192.168.10.88
+
+[network:vars]
+ansible_user=cisco
+ansible_ssh_pass=cisco
+ansible_network_os=nxos
+
+[spines]
+spine1
+spine2
+
+[leafs]
+leaf1
+leaf2
+leaf3
+leaf3

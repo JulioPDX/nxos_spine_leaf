@@ -1,0 +1,26 @@
+hostname: spine2
+interfaces:
+  Ethernet1/1:
+    name: Ethernet1/1
+    enabled: yes
+    mode: layer3
+    mtu: 9216
+    description: connection to leaf1
+  Ethernet1/2:
+    name: Ethernet1/2
+    enabled: yes
+    mode: layer3
+    mtu: 9216
+    description: connection to leaf2
+  Ethernet1/3:
+    name: Ethernet1/3
+    enabled: yes
+    mode: layer3
+    mtu: 9216
+    description: connection to leaf3
+  Ethernet1/4:
+    name: Ethernet1/4
+    enabled: yes
+    mode: layer3
+    mtu: 9216
+    description: connection to leaf4

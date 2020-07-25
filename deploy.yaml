@@ -1,0 +1,8 @@
+---
+- name: Deploying Infrastructure 
+  connection: network_cli
+  gather_facts: false
+  hosts: network
+  roles:
+    # - base
+    - interfaces
