@@ -1,0 +1,19 @@
+ospf_instance: OSPF_UNDERLAY_NET
+
+features:
+  - ospf
+  - pim
+  - bgp
+  - interface-vlan
+  - vn-segment-vlan-based
+  - nv overlay
+
+rp_address: 1.2.3.4
+
+pim_rp:
+  - 192.168.0.1
+  - 192.168.0.2
+
+pim_group_range: 224.0.0.0/4
+
+ssm_range: 232.0.0.0/8

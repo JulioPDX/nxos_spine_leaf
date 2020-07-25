@@ -1,6 +1,10 @@
-- name: Ensure features for fabric
+- name: Enable features for fabric
   nxos_feature:
     feature: "{{ item }}"
     state: enabled
-  with_items: features
+  loop: "{{ features }}"
   when: features is defined
+
+- name: enable fabric forwarding feature
+  nxos_config:
+    lines: feature fabric forwarding

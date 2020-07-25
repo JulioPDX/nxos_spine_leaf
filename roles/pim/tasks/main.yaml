@@ -1,0 +1,32 @@
+- name: configure pim rp-address and group-list
+  nxos_pim_rp_address:
+    rp_address: "{{ rp_address }}"
+    group_list: "{{ pim_group_range }}"
+    state: present
+
+- name: configure ssm range
+  nxos_pim:
+    ssm_range: "{{ ssm_range }}"
+
+- name: configure rp/anycast-rp set
+  nxos_config:
+    lines:
+      - ip pim anycast-rp {{ rp_address }} {{ item }}
+  loop: "{{ pim_rp }}"
+  when: "'spines' in group_names"
+
+- name: enable pim sparse mode on interfaces
+  nxos_pim_interface:
+    interface: "{{ item.value.name }}"
+    sparse: yes
+  with_dict: "{{ interfaces }}"
+  when: interfaces is defined
+
+- name: enable pim sparse mode on loopbacks
+  nxos_pim_interface:
+    interface: "{{ item.value.name }}"
+    sparse: yes
+  with_dict: "{{ loopbacks }}"
+  when: loopbacks is defined
+
+

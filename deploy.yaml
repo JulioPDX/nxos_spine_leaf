@@ -5,4 +5,7 @@
   hosts: network
   roles:
     # - base
-    - interfaces
+    - features
+    # - interfaces
+    # - ospf
+    # - pim

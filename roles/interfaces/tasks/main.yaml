@@ -8,3 +8,21 @@
         mode: "{{ item.value.mode }}"
   with_dict: "{{ interfaces }}"
   when: interfaces is defined
+
+- name: Configure loopback interface settings
+  nxos_l3_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        ipv4:
+          - address: "{{ item.value.ip_address }}"
+  with_dict: "{{ loopbacks }}"
+  when: loopbacks is defined
+
+- name: Configure nve interfaces
+  nxos_vxlan_vtep:
+    interface: nve1
+    host_reachability: default
+    source_interface: Loopback0
+    shutdown: no
+  with_dict: "{{ nves }}"
+  when: "nves is defined and 'leafs' in group_names"

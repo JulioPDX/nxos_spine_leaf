@@ -1,26 +1,49 @@
 hostname: spine1
+
 interfaces:
+
   Ethernet1/1:
     name: Ethernet1/1
     enabled: yes
     mode: layer3
     mtu: 9216
     description: connection to leaf1
+    ospf_enabled: True
+
   Ethernet1/2:
     name: Ethernet1/2
     enabled: yes
     mode: layer3
     mtu: 9216
     description: connection to leaf2
+    ospf_enabled: True
+
   Ethernet1/3:
     name: Ethernet1/3
     enabled: yes
     mode: layer3
     mtu: 9216
     description: connection to leaf3
+    ospf_enabled: True
+
   Ethernet1/4:
     name: Ethernet1/4
     enabled: yes
     mode: layer3
     mtu: 9216
     description: connection to leaf4
+    ospf_enabled: True
+
+loopbacks:
+
+  loopback0:
+    name: loopback0
+    ip_address: 192.168.0.1/32
+    description: loopback 0
+    ospf_enabled: True
+
+  loopback1:
+    name: loopback1
+    ip_address: 1.2.3.4/32
+    description: loopback 0
+    ospf_enabled: True

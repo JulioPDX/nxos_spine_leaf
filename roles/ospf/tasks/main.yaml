@@ -1,0 +1,22 @@
+# - name: creating OSPF instance
+#   nxos_ospf:
+#     ospf: "{{ ospf_instance }}"
+#     state: present
+
+- name: enabling ospf on interfaces
+  nxos_config:
+    lines:
+      - medium p2p
+      - ip unnumbered loopback0
+      - ip router ospf {{ ospf_instance }} area 0.0.0.0
+    parents: interface {{ item.value.name }}
+  with_dict: "{{ interfaces }}"
+  when: interfaces is defined
+
+- name: enabling ospf on loopbacks
+  nxos_interface_ospf:
+    interface: "{{ item.value.name }}"
+    ospf: "{{ ospf_instance }}"
+    area: '0.0.0.0'
+  with_dict: "{{ loopbacks }}"
+  when: loopbacks is defined
