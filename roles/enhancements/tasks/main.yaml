@@ -1,0 +1,22 @@
+- name: configure fabric enhancements
+  nxos_config:
+    lines:
+      - fabric forwarding anycast-gateway-mac 0000.0010.0999
+      - hardware access-list tcam region vpc-convergence 0
+      - hardware access-list tcam region arp-ether 256
+    save_when: modified
+  when: "'leafs' in group_names"
+  register: enhancements
+
+- name: reboot switches for enhancements to take effect
+  nxos_reboot:
+    confirm: true
+  when: enhancements.changed == true
+  ignore_errors: yes
+
+- name: Wait 10 minutes for switches to come back up
+  wait_for_connection:
+    timeout: 600
+    delay: 30
+    sleep: 10
+  when: enhancements.changed == true

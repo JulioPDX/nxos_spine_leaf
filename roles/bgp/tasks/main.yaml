@@ -1,0 +1,9 @@
+- name: generate bgp configurations
+  template:
+    src: ./roles/bgp/templates/bgp.j2
+    dest: ./roles/bgp/files/{{ hostname }}.cfg
+  delegate_to: localhost
+
+- name: configure bgp
+  nxos_config:
+    src: ./roles/bgp/files/{{ hostname }}.cfg

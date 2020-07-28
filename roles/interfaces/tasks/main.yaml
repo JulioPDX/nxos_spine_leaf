@@ -1,4 +1,4 @@
-- name: Configure base level interface settings
+- name: configure base level interface settings
   nxos_interfaces:
     config:
       - name: "{{ item.value.name }}"
@@ -9,7 +9,7 @@
   with_dict: "{{ interfaces }}"
   when: interfaces is defined
 
-- name: Configure loopback interface settings
+- name: configure loopback interface settings
   nxos_l3_interfaces:
     config:
       - name: "{{ item.value.name }}"
@@ -18,7 +18,7 @@
   with_dict: "{{ loopbacks }}"
   when: loopbacks is defined
 
-- name: Configure nve interfaces
+- name: configure nve interfaces
   nxos_vxlan_vtep:
     interface: nve1
     host_reachability: yes

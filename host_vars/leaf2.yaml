@@ -4,7 +4,7 @@ interfaces:
 
   Ethernet1/1:
     name: Ethernet1/1
-    enabled: yes
+    enabled: True
     mode: layer3
     mtu: 9216
     description: connection to spine1
@@ -12,11 +12,20 @@ interfaces:
 
   Ethernet1/2:
     name: Ethernet1/2
-    enabled: yes
+    enabled: True
     mode: layer3
     mtu: 9216
     description: connection to spine2
     ospf_enabled: True
+
+  Ethernet1/3:
+    name: Ethernet1/3
+    enabled: True
+    mode: layer2
+    vlan: 20
+    mtu: 9216
+    description: connection to server2
+    ospf_enabled: False
 
 loopbacks:
 
@@ -25,3 +34,15 @@ loopbacks:
     ip_address: 192.168.0.4/32
     description: loopback 0
     ospf_enabled: True
+
+vlans:
+  - id: 20
+    description: Data_VLAN
+    enabled: True
+    vn_segment: 100020
+    l3_vni: False
+    l3_enabled: True
+    ip_address: 10.20.1.254/24
+    fabric_forwarding: True
+    suppress_arp: True
+    mcast_group: 224.1.1.192

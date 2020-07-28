@@ -1,0 +1,26 @@
+router bgp {{ bgp.asn }}
+  log-neighbor-changes
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+{% if bgp.spine %}
+    retain route-target all
+{% endif %}
+  template peer VXLAN
+    remote-as 64520
+    update-source loopback0
+    address-family ipv4 unicast
+      send-community extended
+{% if bgp.spine %}
+      route-reflector-client
+{% endif %}
+      soft-reconfiguration inbound
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+{% if bgp.spine %}
+      route-reflector-client
+{% endif %}
+{% for neighbor in bgp.neighbors %}
+  neighbor {{ neighbor }}
+    inherit peer VXLAN
+{% endfor %}

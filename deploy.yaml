@@ -2,10 +2,13 @@
 - name: Deploying Infrastructure 
   connection: network_cli
   gather_facts: false
-  hosts: network
+  hosts: leafs
   roles:
-    - base
-    - features
-    - interfaces
-    - ospf
-    - pim
+    # - base
+    # - features
+    # - interfaces
+    # - ospf
+    # - pim
+    # - bgp
+    # - enhancements
+    - vlan_vxlan

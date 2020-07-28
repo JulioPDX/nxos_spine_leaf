@@ -1,0 +1,9 @@
+- name: generate vlan/vni/evpn configurations
+  template:
+    src: ./roles/vlan_vxlan/templates/vlan_vxlan.j2
+    dest: ./roles/vlan_vxlan/files/{{ hostname }}.cfg
+  delegate_to: localhost
+
+- name: configure vlan/vni/evpn
+  nxos_config:
+    src: ./roles/vlan_vxlan/files/{{ hostname }}.cfg

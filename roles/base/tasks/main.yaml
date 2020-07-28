@@ -10,4 +10,10 @@
     text: |
       BGP EVPN VXLAN LAB
       Thank you Packetflow.co.uk
-    state: present
+
+- name: configure exec banner
+  nxos_banner:
+    banner: exec
+    text: |
+      If you are not authorized to enter....
+      please log out :)

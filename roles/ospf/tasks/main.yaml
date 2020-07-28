@@ -1,7 +1,7 @@
-# - name: creating OSPF instance
-#   nxos_ospf:
-#     ospf: "{{ ospf_instance }}"
-#     state: present
+- name: creating OSPF instance
+  nxos_ospf:
+    ospf: "{{ ospf_instance }}"
+    state: present
 
 - name: enabling ospf on interfaces
   nxos_config:

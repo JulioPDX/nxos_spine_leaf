@@ -1,10 +1,10 @@
-- name: Enable features for fabric
+- name: enable features for fabric
   nxos_feature:
     feature: "{{ item }}"
     state: enabled
   loop: "{{ features }}"
   when: features is defined
 
-- name: enable fabric forwarding feature
+- name: enable additional features without using nxos_feature module
   nxos_config:
-    lines: feature fabric forwarding
+    lines: ['feature fabric forwarding', 'nv overlay evpn']

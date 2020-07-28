@@ -1,0 +1,56 @@
+{% for vlan in vlans %}
+vlan {{ vlan.id }}
+  name {{ vlan.description }}
+{% if not vlan.enabled %}
+  shutdown
+{% endif %}
+{% if vlan.vn_segment %}
+  vn-segment {{ vlan.vn_segment }}
+{% endif %}
+
+{% if vlan.l3_enabled %}
+interface vlan {{ vlan.id }}
+  no shutdown
+  ip address {{ vlan.ip_address }}
+{%  if vlan.fabric_forwarding %}
+  fabric forwarding mode anycast-gateway
+{%  endif %}
+{% else %}
+interface vlan {{ vlan.id }}
+  shutdown
+{% endif %}
+{% endfor %}
+
+interface nve1
+{% for vlan in vlans %}
+{% if vlan.enabled and vlan.vn_segment %}
+  member vni {{ vlan.vn_segment }}
+    suppress-arp
+{% if vlan.mcast_group %}
+    mcast-group {{ vlan.mcast_group }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+evpn
+{% for vlan in vlans %}
+{% if not vlan.l3_vni  %}
+  vni {{ vlan.vn_segment }} l2
+    rd auto
+    route-target import auto
+    route-target export auto
+{% endif %}
+{% endfor %}
+
+{% for key, value in interfaces.items() %}
+{% if value.mode == 'layer2' %}
+interface {{ value.name }}
+  description {{ value.description }}
+  switchport access vlan {{ value.vlan }}
+{% if value.enabled %}
+  no shutdown
+{% else %}
+  shutdown
+{% endif %}
+{% endif %}
+{% endfor %}
