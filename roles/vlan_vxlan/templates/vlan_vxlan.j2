@@ -7,28 +7,62 @@ vlan {{ vlan.id }}
 {% if vlan.vn_segment %}
   vn-segment {{ vlan.vn_segment }}
 {% endif %}
+{% endfor %}
 
+{% for vrf in vrfs %}
+{% if vrf.enabled %}
+vrf context {{ vrf.name }}
+{% if vrf.vn_segment %}
+  vni {{ vrf.vn_segment }}
+{% if vrf.rd %}
+  rd {{ vrf.rd }}
+{% if vrf.address_family %}
+  {{ vrf.address_family }}
+    route-target both auto
+    route-target both auto evpn
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+  
+
+{% for vlan in vlans %}
 {% if vlan.l3_enabled %}
 interface vlan {{ vlan.id }}
+{% if vlan.enabled %}
   no shutdown
-  ip address {{ vlan.ip_address }}
-{%  if vlan.fabric_forwarding %}
-  fabric forwarding mode anycast-gateway
-{%  endif %}
 {% else %}
-interface vlan {{ vlan.id }}
   shutdown
 {% endif %}
+{% if vlan.vrf_member %}
+  vrf member {{ vlan.vrf_member }}
+{% endif %}
+{% if vlan.ip_address %}
+  ip address {{ vlan.ip_address }}
+{% endif %}
+{%  if vlan.fabric_forwarding %}
+  fabric forwarding mode anycast-gateway
+{% endif %}
+{% if vlan.ip_forward %}
+  ip forward
+{% endif %}
+{% endif %}
+
 {% endfor %}
 
 interface nve1
 {% for vlan in vlans %}
-{% if vlan.enabled and vlan.vn_segment %}
+{% if vlan.assoc_vrf and vlan.vn_segment is defined %}
+  member vni {{ vlan.vn_segment }} associate-vrf
+{% elif vlan.enabled and vlan.vn_segment %}
   member vni {{ vlan.vn_segment }}
+{% endif %}
+{% if vlan.suppress_arp %}
     suppress-arp
+{% endif %}
 {% if vlan.mcast_group %}
     mcast-group {{ vlan.mcast_group }}
-{% endif %}
 {% endif %}
 {% endfor %}
 

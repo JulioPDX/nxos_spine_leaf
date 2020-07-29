@@ -24,3 +24,15 @@ router bgp {{ bgp.asn }}
   neighbor {{ neighbor }}
     inherit peer VXLAN
 {% endfor %}
+{% for vrf in vrfs %}
+  vrf {{ vrf.name }}
+{% if vrf.address_family %}
+    {{ vrf.address_family }}
+{% endif %}
+{% for network in vrf.networks %}
+      network {{ network.network }}
+{% if network.advertise %}
+      {{ network.advertise }}
+{% endif %}
+{% endfor %}
+{% endfor %}

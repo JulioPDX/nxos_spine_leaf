@@ -3,10 +3,15 @@
     lines:
       - fabric forwarding anycast-gateway-mac 0000.0010.0999
       - hardware access-list tcam region vpc-convergence 0
-      - hardware access-list tcam region arp-ether 256
+      - hardware access-list tcam region span 0
+      - hardware access-list tcam region rp-ipv6-qos 0
+      - hardware access-list tcam region rp-mac-qos 0
+      - hardware access-list tcam region arp-ether 256 double-wide
     save_when: modified
   when: "'leafs' in group_names"
   register: enhancements
+# Thanks to Brian Mitchell in the comments for pointing out double-wide requirement
+
 
 - name: reboot switches for enhancements to take effect
   nxos_reboot:
@@ -14,9 +19,12 @@
   when: enhancements.changed == true
   ignore_errors: yes
 
-- name: Wait 10 minutes for switches to come back up
-  wait_for_connection:
+- name: Wait 10 minutes for ssh to come back up
+  wait_for:
     timeout: 600
-    delay: 30
+    delay: 120
     sleep: 10
+    host: "{{ ansible_host }}"
+    port: 22
+  delegate_to: localhost
   when: enhancements.changed == true

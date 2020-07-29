@@ -46,3 +46,40 @@ vlans:
     fabric_forwarding: True
     suppress_arp: True
     mcast_group: 224.1.1.192
+    vrf_member: TENANT1
+    assoc_vrf: False
+    ip_forward:
+    
+  - id: 999
+    description: VLAN_for_L3VNI
+    enabled: True
+    vn_segment: 100999
+    l3_vni: True
+    l3_enabled: True
+    ip_address:
+    fabric_forwarding: False
+    suppress_arp: False
+    mcast_group:
+    vrf_member: TENANT1
+    assoc_vrf: True
+    ip_forward: True
+
+vrfs:
+
+  - name: TENANT1
+    vn_segment: 100999
+    enabled: True
+    rd: auto
+    address_family: address-family ipv4 unicast
+    networks:
+      - id: 1
+        network: 10.10.1.0/24
+        advertise: advertise l2vpn evpn
+
+bgp:
+
+  asn: 64520
+  spine: False
+  neighbors:
+    - 192.168.0.1
+    - 192.168.0.2
