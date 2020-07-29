@@ -1,6 +1,6 @@
 - name: configure hostname
   nxos_config:
-    lines: 
+    lines:
       - hostname {{ hostname }}
       - cli alias name wr copy run start
     save_when: modified

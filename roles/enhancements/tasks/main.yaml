@@ -16,7 +16,7 @@
 - name: reboot switches for enhancements to take effect
   nxos_reboot:
     confirm: true
-  when: enhancements.changed == true
+  when: enhancements.changed == 'true'
   ignore_errors: yes
 
 - name: Wait 10 minutes for ssh to come back up
@@ -27,4 +27,4 @@
     host: "{{ ansible_host }}"
     port: 22
   delegate_to: localhost
-  when: enhancements.changed == true
+  when: enhancements.changed == 'true'
