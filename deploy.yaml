@@ -2,7 +2,7 @@
 - name: Deploying Infrastructure
   connection: network_cli
   gather_facts: false
-  hosts: network
+  hosts: leaf4,spine2
   roles:
     - base
     - features
@@ -10,5 +10,5 @@
     - ospf
     - pim
     - bgp
-    - enhancements
+    # - enhancements
     - vlan_vxlan
