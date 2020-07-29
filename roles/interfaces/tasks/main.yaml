@@ -1,4 +1,4 @@
-- name: configure base level interface settings
+- name: configure ethernet interface settings
   nxos_interfaces:
     config:
       - name: "{{ item.value.name }}"

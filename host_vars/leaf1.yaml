@@ -76,11 +76,3 @@ vrfs:
       - id: 1
         network: 10.10.1.0/24
         advertise: advertise l2vpn evpn
-
-bgp:
-
-  asn: 64520
-  spine: False
-  neighbors:
-    - 192.168.0.1
-    - 192.168.0.2

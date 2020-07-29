@@ -47,13 +47,3 @@ loopbacks:
     ip_address: 1.2.3.4/32
     description: loopback 0
     ospf_enabled: True
-
-bgp:
-
-  asn: 64520
-  spine: True
-  neighbors:
-    - 192.168.0.3
-    - 192.168.0.4
-    - 192.168.0.5
-    - 192.168.0.6

@@ -1,4 +1,4 @@
-- name: configure hostname
+- name: configure necessities
   nxos_config:
     lines:
       - hostname {{ hostname }}
