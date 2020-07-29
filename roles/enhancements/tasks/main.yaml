@@ -1,7 +1,7 @@
 - name: configure fabric enhancements
   nxos_config:
     lines:
-      - fabric forwarding anycast-gateway-mac 0000.0010.0999
+      - fabric forwarding anycast-gateway-mac 0000.0011.1234
       - hardware access-list tcam region vpc-convergence 0
       - hardware access-list tcam region span 0
       - hardware access-list tcam region rp-ipv6-qos 0
