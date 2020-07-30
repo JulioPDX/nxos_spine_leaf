@@ -153,6 +153,7 @@ interfaces:
     mtu: 9216
     description: connection to spine1
     ospf_enabled: True
+    pim: True
 
 --snipp--
 ```
@@ -221,7 +222,7 @@ As you can see this is usable but a bit messy. In this case we are looping over 
       - ip router ospf {{ ospf_instance }} area 0.0.0.0
     parents: interface {{ item.value.name }}
   with_dict: "{{ interfaces }}"
-  when: interfaces is defined
+  when: interfaces is defined and item.value.ospf_enabled == True
 
 - name: enabling ospf on loopbacks
   nxos_interface_ospf:
@@ -229,7 +230,7 @@ As you can see this is usable but a bit messy. In this case we are looping over 
     ospf: "{{ ospf_instance }}"
     area: '0.0.0.0'
   with_dict: "{{ loopbacks }}"
-  when: loopbacks is defined
+  when: loopbacks is defined and item.value.ospf_enabled == True
 ```
 
 Similar to before, two different approaches to enable OSPF on an interface. Ill move into the bgp and vlan_vxlan roles as they both utilize jinja templates.
