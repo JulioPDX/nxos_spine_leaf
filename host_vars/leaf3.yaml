@@ -9,6 +9,7 @@ interfaces:
     mtu: 9216
     description: connection to spine1
     ospf_enabled: True
+    pim: True
 
   Ethernet1/2:
     name: Ethernet1/2
@@ -17,6 +18,7 @@ interfaces:
     mtu: 9216
     description: connection to spine2
     ospf_enabled: True
+    pim: True
 
   Ethernet1/3:
     name: Ethernet1/3
@@ -26,6 +28,7 @@ interfaces:
     mtu: 9216
     description: connection to server3
     ospf_enabled: False
+    pim: False
 
 loopbacks:
 
@@ -34,6 +37,7 @@ loopbacks:
     ip_address: 192.168.0.5/32
     description: loopback 0
     ospf_enabled: True
+    pim: True
 
 vlans:
   - id: 10

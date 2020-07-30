@@ -4,11 +4,10 @@
 
 ## Purpose
 
-This repo is based on the great post by [Rick Donato](https://www.packetflow.co.uk/how-to-build-a-nxos-9000v-based-evpn-vxlan-fabric/). I wanted to see if I could automate this guide using Ansible. Ansible is a popular configuration management framework that probably doesn't need much more of an introduction. In the repo you will see a decent amount of use cases. Whether thats using built in modules for specific tasks, jinja templating (building configurations), conditionals, and variable placements.
+This repo is based on a great post by [Rick Donato](https://www.packetflow.co.uk/how-to-build-a-nxos-9000v-based-evpn-vxlan-fabric/). I wanted to see if I could automate this guide using Ansible. Ansible is a popular configuration management framework that probably doesn't need much more of an introduction. In the repo you will see a decent amount of use cases. Whether thats using built in modules for specific tasks, jinja templating (building configurations), conditionals, and variable placements.
 
 ## Prerequisites
 
-These are just what is running in my local environment!
 1. Ansible =< 2.9
 2. NXOSv 9K Version 9.2.4
 3. Validate Ansible control machine has access to nodes
@@ -319,4 +318,129 @@ vrf context {{ vrf.name }}
 {% endfor %}
 
 --snip--
+```
+
+## Running Playbook
+
+```
+juliopdx@librenms:~/repos/nxos_spine_leaf$ ansible-playbook deploy.yaml 
+
+PLAY [Deploying Infrastructure] ****************************************************************************************************************************************
+
+TASK [base : configure necessities] ************************************************************************************************************************************
+changed: [leaf4]
+changed: [spine2]
+
+TASK [base : configure motd banner] ************************************************************************************************************************************
+ok: [spine2]
+ok: [leaf4]
+
+TASK [base : configure exec banner] ************************************************************************************************************************************
+ok: [leaf4]
+ok: [spine2]
+
+TASK [features : enable features for fabric] ***************************************************************************************************************************
+ok: [spine2] => (item=ospf)
+ok: [leaf4] => (item=ospf)
+ok: [spine2] => (item=pim)
+ok: [leaf4] => (item=pim)
+ok: [leaf4] => (item=bgp)
+ok: [spine2] => (item=bgp)
+ok: [leaf4] => (item=interface-vlan)
+ok: [spine2] => (item=interface-vlan)
+ok: [spine2] => (item=vn-segment-vlan-based)
+ok: [spine2] => (item=nv overlay)
+ok: [leaf4] => (item=vn-segment-vlan-based)
+ok: [leaf4] => (item=nv overlay)
+
+TASK [features : enable additional features without using nxos_feature module] *****************************************************************************************
+ok: [leaf4]
+ok: [spine2]
+
+TASK [interfaces : configure ethernet interface settings] **************************************************************************************************************
+ok: [leaf4] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine1', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine2', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf1', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer2', 'vlan': 20, 'mtu': 9216, 'description': 'connection to server4', 'ospf_enabled': False, 'pim': False}})
+ok: [spine2] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf2', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf3', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/4', 'value': {'name': 'Ethernet1/4', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf4', 'ospf_enabled': True, 'pim': True}})
+
+TASK [interfaces : configure loopback interface settings] **************************************************************************************************************
+ok: [spine2] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.2/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'loopback1', 'value': {'name': 'loopback1', 'ip_address': '1.2.3.4/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.6/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+
+TASK [interfaces : configure nve interfaces] ***************************************************************************************************************************
+skipping: [spine2]
+ok: [leaf4]
+
+TASK [ospf : creating OSPF instance] ***********************************************************************************************************************************
+ok: [leaf4]
+ok: [spine2]
+
+TASK [ospf : enabling ospf on interfaces] ******************************************************************************************************************************
+ok: [leaf4] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine1', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf1', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf2', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine2', 'ospf_enabled': True, 'pim': True}})
+skipping: [leaf4] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer2', 'vlan': 20, 'mtu': 9216, 'description': 'connection to server4', 'ospf_enabled': False, 'pim': False}}) 
+ok: [spine2] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf3', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/4', 'value': {'name': 'Ethernet1/4', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf4', 'ospf_enabled': True, 'pim': True}})
+
+TASK [ospf : enabling ospf on loopbacks] *******************************************************************************************************************************
+ok: [spine2] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.2/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.6/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'loopback1', 'value': {'name': 'loopback1', 'ip_address': '1.2.3.4/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+
+TASK [pim : configure pim rp-address and group-list] *******************************************************************************************************************
+changed: [spine2]
+changed: [leaf4]
+
+TASK [pim : configure ssm range] ***************************************************************************************************************************************
+changed: [leaf4]
+changed: [spine2]
+
+TASK [pim : configure rp/anycast-rp set] *******************************************************************************************************************************
+skipping: [leaf4] => (item=192.168.0.1) 
+skipping: [leaf4] => (item=192.168.0.2) 
+ok: [spine2] => (item=192.168.0.1)
+ok: [spine2] => (item=192.168.0.2)
+
+TASK [pim : enable pim sparse mode on interfaces] **********************************************************************************************************************
+ok: [spine2] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf1', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'Ethernet1/1', 'value': {'name': 'Ethernet1/1', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine1', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to spine2', 'ospf_enabled': True, 'pim': True}})
+skipping: [leaf4] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer2', 'vlan': 20, 'mtu': 9216, 'description': 'connection to server4', 'ospf_enabled': False, 'pim': False}}) 
+ok: [spine2] => (item={'key': 'Ethernet1/2', 'value': {'name': 'Ethernet1/2', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf2', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/3', 'value': {'name': 'Ethernet1/3', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf3', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'Ethernet1/4', 'value': {'name': 'Ethernet1/4', 'enabled': True, 'mode': 'layer3', 'mtu': 9216, 'description': 'connection to leaf4', 'ospf_enabled': True, 'pim': True}})
+
+TASK [pim : enable pim sparse mode on loopbacks] ***********************************************************************************************************************
+ok: [spine2] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.2/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [spine2] => (item={'key': 'loopback1', 'value': {'name': 'loopback1', 'ip_address': '1.2.3.4/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+ok: [leaf4] => (item={'key': 'loopback0', 'value': {'name': 'loopback0', 'ip_address': '192.168.0.6/32', 'description': 'loopback 0', 'ospf_enabled': True, 'pim': True}})
+
+TASK [bgp : generate bgp configurations] *******************************************************************************************************************************
+ok: [leaf4 -> localhost]
+ok: [spine2 -> localhost]
+
+TASK [bgp : configure bgp] *********************************************************************************************************************************************
+ok: [spine2]
+ok: [leaf4]
+
+TASK [vlan_vxlan : generate vlan/vni/evpn configurations] **************************************************************************************************************
+skipping: [spine2]
+ok: [leaf4 -> localhost]
+
+TASK [vlan_vxlan : configure vlan/vni/evpn] ****************************************************************************************************************************
+skipping: [spine2]
+changed: [leaf4]
+
+PLAY RECAP *************************************************************************************************************************************************************
+leaf4                      : ok=19   changed=4    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+spine2                     : ok=17   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+
+juliopdx@librenms:~/repos/nxos_spine_leaf$
+
 ```

@@ -20,13 +20,13 @@
     interface: "{{ item.value.name }}"
     sparse: yes
   with_dict: "{{ interfaces }}"
-  when: interfaces is defined
+  when: interfaces is defined and item.value.pim == True
 
 - name: enable pim sparse mode on loopbacks
   nxos_pim_interface:
     interface: "{{ item.value.name }}"
     sparse: yes
   with_dict: "{{ loopbacks }}"
-  when: loopbacks is defined
+  when: loopbacks is defined and item.value.pim == True
 
 

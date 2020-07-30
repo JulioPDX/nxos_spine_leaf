@@ -9,6 +9,7 @@ interfaces:
     mtu: 9216
     description: connection to leaf1
     ospf_enabled: True
+    pim: True
 
   Ethernet1/2:
     name: Ethernet1/2
@@ -17,6 +18,7 @@ interfaces:
     mtu: 9216
     description: connection to leaf2
     ospf_enabled: True
+    pim: True
 
   Ethernet1/3:
     name: Ethernet1/3
@@ -25,6 +27,7 @@ interfaces:
     mtu: 9216
     description: connection to leaf3
     ospf_enabled: True
+    pim: True
 
   Ethernet1/4:
     name: Ethernet1/4
@@ -33,6 +36,7 @@ interfaces:
     mtu: 9216
     description: connection to leaf4
     ospf_enabled: True
+    pim: True
 
 loopbacks:
 
@@ -41,9 +45,11 @@ loopbacks:
     ip_address: 192.168.0.1/32
     description: loopback 0
     ospf_enabled: True
+    pim: True
 
   loopback1:
     name: loopback1
     ip_address: 1.2.3.4/32
     description: loopback 0
     ospf_enabled: True
+    pim: True
