@@ -359,7 +359,7 @@ vrf context {{ vrf.name }}
 
 ## Running Playbook
 
-```
+```bash
 juliopdx@librenms:~/repos/nxos_spine_leaf$ ansible-playbook deploy.yaml 
 
 PLAY [Deploying Infrastructure] ****************************************************************************************************************************************
