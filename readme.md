@@ -567,3 +567,19 @@ spine1                     : ok=4    changed=0    unreachable=0    failed=0    s
 
 juliopdx@librenms:~/repos/nxos_spine_leaf$
 ```
+
+### Authors
+
+* **Julio Perez**
+
+## License
+
+This repo is licensed under the MIT License
+
+## Acknowledgments
+
+Thank you very much for reading this far! I really do appreciate it. I'm sure this repo could be much improved but this was an exercise for me on automating this deployment. Thanks again and I wish you the best in your automation journey!
+
+* Rick Donato (inspiration for this repo)
+* Dinesh Dutt (Check out his book Cloud Native Data Center)
+* Ansible Documentation (yay)
