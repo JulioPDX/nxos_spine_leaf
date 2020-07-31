@@ -175,7 +175,7 @@ When that task is run against leaf1, the final output will be `hostname leaf1` .
     lines: ['feature fabric forwarding', 'nv overlay evpn']
 ```
 
-This file is a pretty cool example on how to solve the same task. The first task uses the `nxos_feature` module and loops over the `features` variable. Since all features are the same for each node, they are located under `group_vars/network.yaml`. The second option was to use the `nxos_config` module and passing in a list.
+This file is a pretty cool example on how to solve the same task in two different ways. The first task uses the `nxos_feature` module and loops over the `features` variable. Since all features are the same for each node, they are located under `group_vars/network.yaml`. The second option uses the `nxos_config` module and we pass in a list.
 
 ```yaml
 ospf_instance: OSPF_UNDERLAY_NET
@@ -271,6 +271,42 @@ router bgp {{ bgp.asn }}
 --snip--
 ```
 
+### `roles/enhancements/tasks/main.yaml`
+
+```yaml
+- name: configure fabric enhancements
+  nxos_config:
+    lines:
+      - fabric forwarding anycast-gateway-mac 0000.0011.1234
+      - hardware access-list tcam region vpc-convergence 0
+      - hardware access-list tcam region span 0
+      - hardware access-list tcam region rp-ipv6-qos 0
+      - hardware access-list tcam region rp-mac-qos 0
+      - hardware access-list tcam region arp-ether 256 double-wide
+    save_when: modified
+  when: "'leafs' in group_names"
+  register: enhancements
+# Thanks to Brian Mitchell in the comments for pointing out double-wide requirement
+
+- name: reboot switches for enhancements to take effect
+  nxos_reboot:
+    confirm: true
+  when: enhancements.changed == 'true'
+  ignore_errors: yes
+
+- name: Wait 10 minutes for ssh to come back up
+  wait_for:
+    timeout: 600
+    delay: 120
+    sleep: 10
+    host: "{{ ansible_host }}"
+    port: 22
+  delegate_to: localhost
+  when: enhancements.changed == 'true'
+```
+
+I faced a similar issue as a fellow reader, I needed to lower more TCAM resources for arp suppression to work. Once the first task is executed the rest of the playbook deals with rebooting the switch for changes to take effect and become available again.
+
 ### `roles/vlan_vxlan/tasks/main.yaml`
 
 ```yaml
@@ -287,7 +323,7 @@ router bgp {{ bgp.asn }}
   when: "'leafs' in group_names"
 ```
 
-Same thought as before with the bgp role. Local Ansible to generate configurations and then send. One neat wrinkle here is that these configuration only apply to leafs. So we use a conditional statement to only run on nodes in the leafs group. Heres a small snip of the `vlan_vxlan.j2` template. 
+Same thought as before with the bgp role. Local Ansible to generate configurations and then send. One neat wrinkle here is that these configuration only apply to leafs. So we use a conditional statement to only run on nodes in the leafs group. Here's a small snip of the `vlan_vxlan.j2` template. 
 
 ```jinja
 {% for vlan in vlans %}
@@ -444,4 +480,90 @@ spine2                     : ok=17   changed=3    unreachable=0    failed=0    s
 
 juliopdx@librenms:~/repos/nxos_spine_leaf$
 
+```
+
+### `roles/test/tasks/main.yaml`
+
+```yaml
+# This task is using the bgp.neighbors variable in group_vars 
+# to loop over loopback addresses and test basic reachability.
+- name: testing node to node reachability
+  net_ping:
+    dest: "{{ item }}"
+    source: "{{ loopbacks.loopback0.ip_address | ipv4('address') }}"
+    count: 1
+  loop: "{{ bgp.neighbors }}"
+  register: pings
+
+# This one was a bit interesting, since running a trace has a header,
+# I am comparing the length to 2. Since the header is one and the first
+# hop is the second. We expect each trace to only be one hop away.
+- name: run traceroutes to gather expected number of hops
+  nxos_command:
+    commands: traceroute {{ item }}
+  loop: "{{ bgp.neighbors }}"
+  register: traces
+  failed_when: "{{ traces.stdout_lines.0 | length }} > 2"
+
+- name: run show command to view bgp neighbors
+  nxos_command:
+    commands: show bgp vrf all all neighbors | inc Established
+  register: bgp_neighbors
+
+# Similar idea here, since we are using the | include syntax there is no
+# header and we can do an exact comparison. Spines should all have four neighbors
+# and leafs should all have two neighbors.
+
+- name: BGP validation check
+  assert:
+    that:
+      - "{{ bgp_neighbors.stdout_lines.0 | length }} == {{ bgp.neighbors | length }}"
+    fail_msg: "{{ inventory_hostname }} has missing BGP neighbors"
+    success_msg: "{{ inventory_hostname }} has passed BGP checks"
+```
+
+### Running validation on one spine and leaf
+
+```bash
+juliopdx@librenms:~/repos/nxos_spine_leaf$ ansible-playbook test.yaml 
+
+PLAY [Deploying Infrastructure] ****************************************************************************************************************************************
+
+TASK [test : testing node to node reachability] ************************************************************************************************************************
+ok: [leaf1] => (item=192.168.0.1)
+ok: [spine1] => (item=192.168.0.3)
+ok: [spine1] => (item=192.168.0.4)
+ok: [leaf1] => (item=192.168.0.2)
+ok: [spine1] => (item=192.168.0.5)
+ok: [spine1] => (item=192.168.0.6)
+
+TASK [test : run traceroutes to gather expected number of hops] ********************************************************************************************************
+[WARNING]: conditional statements should not include jinja2 templating delimiters such as {{ }} or {% %}. Found: {{ traces.stdout_lines.0 | length }} > 2
+ok: [spine1] => (item=192.168.0.3)
+[WARNING]: conditional statements should not include jinja2 templating delimiters such as {{ }} or {% %}. Found: {{ traces.stdout_lines.0 | length }} > 2
+ok: [leaf1] => (item=192.168.0.1)
+ok: [leaf1] => (item=192.168.0.2)
+ok: [spine1] => (item=192.168.0.4)
+ok: [spine1] => (item=192.168.0.5)
+ok: [spine1] => (item=192.168.0.6)
+
+TASK [test : run show command to view bgp neighbors] *******************************************************************************************************************
+ok: [leaf1]
+ok: [spine1]
+
+TASK [test : BGP validation check] *************************************************************************************************************************************
+ok: [leaf1] => {
+    "changed": false,
+    "msg": "leaf1 has passed BGP checks"
+}
+ok: [spine1] => {
+    "changed": false,
+    "msg": "spine1 has passed BGP checks"
+}
+
+PLAY RECAP *************************************************************************************************************************************************************
+leaf1                      : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+spine1                     : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+juliopdx@librenms:~/repos/nxos_spine_leaf$
 ```

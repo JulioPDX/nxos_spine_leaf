@@ -1,0 +1,26 @@
+- name: testing node to node reachability
+  net_ping:
+    dest: "{{ item }}"
+    source: "{{ loopbacks.loopback0.ip_address | ipv4('address') }}"
+    count: 1
+  loop: "{{ bgp.neighbors }}"
+  register: pings
+
+- name: run traceroutes to gather expected number of hops
+  nxos_command:
+    commands: traceroute {{ item }}
+  loop: "{{ bgp.neighbors }}"
+  register: traces
+  failed_when: "{{ traces.stdout_lines.0 | length }} > 2"
+
+- name: run show command to view bgp neighbors
+  nxos_command:
+    commands: show bgp vrf all all neighbors | inc Established
+  register: bgp_neighbors
+
+- name: BGP validation check
+  assert:
+    that:
+      - "{{ bgp_neighbors.stdout_lines.0 | length }} == {{ bgp.neighbors | length }}"
+    fail_msg: "{{ inventory_hostname }} has missing BGP neighbors"
+    success_msg: "{{ inventory_hostname }} has passed BGP checks"
