@@ -8,7 +8,7 @@ This repo is based on a great post by [Rick Donato](https://www.packetflow.co.uk
 
 ## Prerequisites
 
-1. Ansible =< 2.9
+1. Ansible ≤ 2.9
 2. NXOSv 9K Version 9.2.4
 3. Validate Ansible control machine has access to nodes
 
